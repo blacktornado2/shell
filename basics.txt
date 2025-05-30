@@ -1,0 +1,58 @@
+Shell
+ - A shell is a program that provides an interface between the user and the operating system
+ - It interprets user commands and passes them to the operating system kernel to be executed.
+
+
+Shell examples:
+ - sh (bourne shell) : original UNIX shell
+ - bash (Bourne again SHell) : default shell of linux
+ - zsh (Z Shell) : Enhanced bash like shell + more features(default shell of macOS)
+ - fish (friendly interactive shell) : User friendly with autosuggestions and syntax highlighting
+ - PowerShell (Core) : Cross platform(windows/linux/macOS) shell from Microsoft, object based
+ - Windows PowerShell : predecessor to powershell core(legacy), only works on windows
+ - cmd : legacy windows shell
+
+
+Graphical Shells(GUI based):
+ - Windows Explorer
+ - Aqua (macOS GUI shell)
+
+
+How to use powershell on macOS and Linux:
+ - Install PowerShell
+ - Run pwsh in terminal
+
+
+Terminal:
+ - A program that provides a text-based interface to interact with the shell (and through it, the operating system kernel).
+
+Terminal examples:
+ - Terminal.app, iTerm2 : macOS
+ - GNOME Terminla, Konsole : Linux
+ - Windows Terminal, Powershell, cmd : Windows
+
+Terminal vs Shell:
+ - Terminal = The app/interface
+ - Shell = The command processor inside it
+ - We open a terminal to access a shell
+
+Analogy:
+ - Terminal is like a car dashboard (the interface you see),
+ - Shell is like the engine (doing the actual work when you "drive")
+
+
+Flow:
+
+    User
+      ↓
+    Terminal (Interface)
+      ↓
+    Shell (Interpreter)
+      ↓
+    OS Kernel (System Control)
+      ↓
+    Hardware (Execution)
+
+
+Shell Customisations:
+ - Configuration files: .bashrc, .zshrc
