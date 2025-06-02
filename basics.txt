@@ -53,6 +53,15 @@ Flow:
       ↓
     Hardware (Execution)
 
+Check Shell
+ - ps -p $$:  Prints the current shell we are in(macOS/Linux)
+ - echo $SHELL: Default shell
+
+ For windows check the prompt style:
+ - cmd.exe	         C:\Users\John>
+ - PowerShell	      PS C:\Users\John>
+ - Git Bash	        ankit@ankitsPC MINGW64 ~
+
 
 Shell Customisations:
  - Configuration files: .bashrc, .zshrc
