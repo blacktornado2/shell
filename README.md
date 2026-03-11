@@ -46,14 +46,14 @@ A **shell** is a program that provides an interface between the user and the ope
 
 ### Graphical Shells (GUI-based)
 
-- **Windows Explorer** — Windows
-- **Aqua** — macOS GUI shell
+- **Windows Explorer**: Windows
+- **Aqua**: macOS GUI shell (finder runs inside Aqua environment)
 
 ### Using PowerShell on macOS / Linux
 
 ```sh
 # 1. Install PowerShell (e.g., via Homebrew on macOS)
-brew install --cask powershell
+brew install powershell
 
 # 2. Launch it
 pwsh
