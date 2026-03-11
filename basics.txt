@@ -28,7 +28,7 @@ Terminal:
 
 Terminal examples:
  - Terminal.app, iTerm2 : macOS
- - GNOME Terminla, Konsole : Linux
+ - GNOME Terminal, Konsole : Linux
  - Windows Terminal, Powershell, cmd : Windows
 
 Terminal vs Shell:
@@ -65,3 +65,271 @@ Check Shell
 
 Shell Customisations:
  - Configuration files: .bashrc, .zshrc
+
+
+-----------------------------------------------------------------------
+Login Shell vs Interactive Shell
+-----------------------------------------------------------------------
+
+ - Login Shell    : Started when you log into a machine (e.g., SSH session, macOS Terminal on open).
+                    Reads login-specific config files first (.bash_profile, .zprofile, .profile).
+ - Interactive Shell : A shell you type commands into (most daily use).
+                    Reads .bashrc / .zshrc on startup.
+ - Non-interactive Shell : Runs scripts without user input. Config files are generally NOT sourced.
+
+ How they chain (bash example):
+   Login Shell reads → ~/.bash_profile (which usually sources ~/.bashrc)
+   Interactive (non-login) Shell reads → ~/.bashrc directly
+
+
+-----------------------------------------------------------------------
+.rc Files — Configuration Files for the Shell
+-----------------------------------------------------------------------
+
+ What is an .rc file?
+ - "rc" stands for "run commands" (from UNIX history).
+ - These are plain text scripts that the shell automatically runs when it starts.
+ - Used to set up your environment: aliases, functions, environment variables, prompt, PATH, etc.
+
+ ── .bashrc ──────────────────────────────────────────────────────────
+ - Sourced by bash for every new interactive non-login shell.
+ - Located at: ~/.bashrc
+ - Common uses:
+     * Define aliases             e.g.  alias ll='ls -la'
+     * Set environment variables  e.g.  export EDITOR=vim
+     * Customize the prompt (PS1)
+     * Add directories to PATH
+     * Define shell functions
+ - NOT read for login shells by default (hence .bash_profile usually sources it).
+
+ ── .bash_profile ────────────────────────────────────────────────────
+ - Sourced by bash for login shells.
+ - Located at: ~/.bash_profile
+ - Best practice: keep it minimal and have it source ~/.bashrc:
+     if [ -f ~/.bashrc ]; then
+         source ~/.bashrc
+     fi
+
+ ── .zshrc ───────────────────────────────────────────────────────────
+ - Sourced by zsh for every new interactive shell (login or non-login on macOS).
+ - Located at: ~/.zshrc
+ - On macOS, Terminal.app opens a login shell, so .zshrc is the single place to configure zsh.
+ - Common uses: same as .bashrc — aliases, PATH, prompt (PROMPT variable), plugins.
+ - Popular zsh frameworks that extend .zshrc:
+     * Oh My Zsh   (https://ohmyz.sh)
+     * Prezto
+     * Zinit / Zplug
+
+ ── .zprofile ────────────────────────────────────────────────────────
+ - zsh equivalent of .bash_profile; sourced for login shells before .zshrc.
+ - Use it for things that should only be set once at login (e.g., Homebrew PATH on Apple Silicon).
+     e.g.  eval "$(/opt/homebrew/bin/brew shellenv)"
+
+ ── .profile ─────────────────────────────────────────────────────────
+ - POSIX-compatible login config; read by sh and as a fallback by bash (when .bash_profile absent).
+ - Safe for environment variables that need to be shared across multiple shells.
+
+ Order of sourcing (macOS zsh login shell):
+   /etc/zshenv → ~/.zshenv → /etc/zprofile → ~/.zprofile → /etc/zshrc → ~/.zshrc
+
+ Applying changes without restarting the shell:
+   source ~/.zshrc      (or)      . ~/.zshrc
+
+
+-----------------------------------------------------------------------
+Environment Variables
+-----------------------------------------------------------------------
+
+ - Key-value pairs available to the shell and all programs it launches.
+ - Set with:         export VAR=value
+ - Read with:        echo $VAR   or   printenv VAR
+ - List all:         env   or   printenv
+ - Remove:           unset VAR
+
+ Important built-in variables:
+   $HOME      — Current user's home directory          (/Users/ankit)
+   $USER      — Current username
+   $SHELL     — Path to the default shell              (/bin/zsh)
+   $PATH      — Colon-separated list of directories searched for commands
+   $PWD       — Current working directory
+   $OLDPWD    — Previous working directory (used by cd -)
+   $EDITOR    — Default text editor                    (vim, nano, code)
+   $PS1/$PROMPT — Shell prompt format string (bash/zsh)
+   $?         — Exit status of the last command        (0 = success)
+   $$         — PID of the current shell process
+
+
+-----------------------------------------------------------------------
+PATH — The Most Important Environment Variable
+-----------------------------------------------------------------------
+
+ - When you type a command, the shell searches each directory in $PATH left-to-right.
+ - View current PATH:
+     echo $PATH
+     /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+
+ - Add a directory to PATH (put in .zshrc / .bashrc to make it permanent):
+     export PATH="$HOME/.local/bin:$PATH"   ← prepend (higher priority)
+     export PATH="$PATH:$HOME/.local/bin"   ← append  (lower priority)
+
+ - Find where a command lives:
+     which python3        → /usr/bin/python3
+     type python3         → python3 is /usr/bin/python3
+
+
+-----------------------------------------------------------------------
+Aliases
+-----------------------------------------------------------------------
+
+ - Short names for longer commands. Defined in .zshrc / .bashrc.
+ - Syntax:   alias name='command'
+ - Examples:
+     alias ll='ls -la'
+     alias gs='git status'
+     alias ..='cd ..'
+     alias ...='cd ../..'
+     alias grep='grep --color=auto'
+     alias python='python3'
+
+ - List all aliases:     alias
+ - Remove an alias:      unalias name   (temporary, session only)
+
+
+-----------------------------------------------------------------------
+Shell Functions
+-----------------------------------------------------------------------
+
+ - More powerful than aliases; can accept arguments ($1, $2, ...).
+ - Defined in .zshrc / .bashrc:
+     mkcd() {
+         mkdir -p "$1" && cd "$1"
+     }
+     # Usage: mkcd new-folder
+
+ - Difference from aliases: functions can have logic, loops, conditionals; aliases cannot.
+
+
+-----------------------------------------------------------------------
+stdin, stdout, stderr — Standard Streams
+-----------------------------------------------------------------------
+
+ Every process has three default streams:
+   stdin  (0) — Standard Input  : data fed INTO a program   (keyboard by default)
+   stdout (1) — Standard Output : normal output from a program (screen by default)
+   stderr (2) — Standard Error  : error messages             (screen by default)
+
+ Redirection:
+   command > file        Redirect stdout to file (overwrite)
+   command >> file       Redirect stdout to file (append)
+   command < file        Feed file as stdin to command
+   command 2> file       Redirect stderr to file
+   command 2>&1          Redirect stderr to the same place as stdout
+   command > file 2>&1   Redirect both stdout and stderr to file
+   command &> file       Shorthand for above (bash/zsh)
+
+ Discard output:
+   command > /dev/null        Discard stdout
+   command > /dev/null 2>&1   Discard both stdout and stderr
+
+
+-----------------------------------------------------------------------
+Pipes
+-----------------------------------------------------------------------
+
+ - The | (pipe) operator sends stdout of one command as stdin of the next.
+ - Allows chaining commands to build powerful one-liners.
+ - Examples:
+     ls -la | grep ".txt"              List only .txt files
+     cat file.txt | sort | uniq        Sort and deduplicate lines
+     ps aux | grep python              Find running python processes
+     history | grep git | tail -10     Last 10 git-related commands
+
+
+-----------------------------------------------------------------------
+Command Chaining Operators
+-----------------------------------------------------------------------
+
+   ;          Run commands sequentially regardless of success/failure
+               mkdir foo ; cd foo
+
+   &&         Run next command only if previous succeeded (exit code 0)
+               mkdir foo && cd foo
+
+   ||         Run next command only if previous FAILED (exit code != 0)
+               cd foo || echo "Directory not found"
+
+   &          Run command in the background (non-blocking)
+               sleep 10 &
+
+
+-----------------------------------------------------------------------
+History
+-----------------------------------------------------------------------
+
+ - The shell saves previously typed commands to a history file.
+     bash → ~/.bash_history
+     zsh  → ~/.zsh_history
+
+ - Useful commands:
+     history              Print numbered command history
+     history 20           Show last 20 commands
+     !!                   Re-run the last command
+     !n                   Re-run command number n from history
+     !git                 Re-run the last command starting with "git"
+     Ctrl+R               Interactive reverse search through history
+
+ - Useful .zshrc settings:
+     HISTSIZE=10000              Lines kept in memory
+     SAVEHIST=10000              Lines saved to file
+     setopt HIST_IGNORE_DUPS     Don't record duplicate commands
+     setopt SHARE_HISTORY        Share history across open terminals
+
+
+-----------------------------------------------------------------------
+Useful Shell Built-in Commands
+-----------------------------------------------------------------------
+
+   cd        Change directory  (cd ~, cd -, cd ..)
+   pwd       Print working directory
+   echo      Print text / variable value
+   read      Read user input into a variable
+   export    Mark variable for export to child processes
+   source    Execute a file in the current shell (. file is shorthand)
+   exit      Exit the shell (with optional exit code)
+   type      Show how a name is interpreted (alias, builtin, file)
+   which     Show full path of a command
+   man       Show manual page for a command
+   help      Show help for shell builtins (bash)
+
+
+-----------------------------------------------------------------------
+Quoting Rules
+-----------------------------------------------------------------------
+
+   'single quotes'   Everything literal — no variable expansion, no escape sequences
+                     echo '$HOME'   →  $HOME
+
+   "double quotes"   Variable expansion and command substitution work; spaces preserved
+                     echo "$HOME"   →  /Users/ankit
+
+   `backticks`       Command substitution (legacy); prefer $() instead
+                     echo `date`
+
+   $(...)            Modern command substitution
+                     echo $(date)
+                     FILES=$(ls *.txt)
+
+
+-----------------------------------------------------------------------
+Startup File Quick Reference
+-----------------------------------------------------------------------
+
+   Shell    Login Shell             Interactive (non-login)
+   ──────── ─────────────────────── ─────────────────────────────
+   sh       /etc/profile, ~/.profile
+   bash     ~/.bash_profile         ~/.bashrc
+   zsh      ~/.zprofile             ~/.zshrc
+   fish     config.fish             config.fish (always)
+
+   Tip: On macOS, Terminal.app/iTerm2 open login shells by default,
+        so ~/.zshrc is sourced via the login chain. Everything goes in .zshrc.
